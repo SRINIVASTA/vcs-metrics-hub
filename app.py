@@ -3,9 +3,17 @@ import pandas as pd
 from src.config import CACHE_TTL_SECONDS
 from src.github_client import GitHubTelemetryClient
 from src.analytics import build_telemetry_dataframe, save_and_merge_history
-from src.ui_components import render_kpi_header, render_traffic_charts
+from src.ui_components import (
+    render_kpi_header,
+    render_traffic_charts,
+    render_styled_audit_table,
+)
 
-st.set_page_config(page_title="GitHub Repository Traffic & Clone Analyzer ", page_icon="📊", layout="wide")
+st.set_page_config(
+    page_title="GitHub Portfolio Analytics",
+    page_icon="📊",
+    layout="wide",
+)
 
 
 @st.cache_data(ttl=CACHE_TTL_SECONDS, show_spinner="Syncing repository telemetry...")
@@ -41,7 +49,6 @@ def render_sidebar_controls(df: pd.DataFrame, username: str) -> pd.DataFrame:
 
         st.divider()
 
-        # 1. Date Range Filter
         st.subheader("📅 Date Range")
         temp_df = df.copy()
         temp_df["Date_dt"] = pd.to_datetime(temp_df["Date"]).dt.date
@@ -57,7 +64,6 @@ def render_sidebar_controls(df: pd.DataFrame, username: str) -> pd.DataFrame:
 
         st.divider()
 
-        # 2. Repository & Visibility Filters
         st.subheader("🔍 Repository Filters")
         visibility_filter = st.radio(
             "Visibility",
@@ -74,7 +80,6 @@ def render_sidebar_controls(df: pd.DataFrame, username: str) -> pd.DataFrame:
 
         only_external = st.toggle("Only External Visitors (> 0)", value=False)
 
-        # Apply all filters
         if isinstance(selected_range, tuple) and len(selected_range) == 2:
             start_d, end_d = selected_range
             temp_df = temp_df[(temp_df["Date_dt"] >= start_d) & (temp_df["Date_dt"] <= end_d)]
@@ -95,8 +100,8 @@ def render_sidebar_controls(df: pd.DataFrame, username: str) -> pd.DataFrame:
 
 
 def main():
-    st.title("📊 GitHub Repository Traffic & Clone Analyzer ")
-    st.caption("Cross-Repository Traffic & Clone Telemetry")
+    st.title("📊 GitHub Portfolio Analytics")
+    st.caption("Cross-Repository Traffic, External Visitor & Clone Telemetry")
 
     if "GITHUB_TOKEN" not in st.secrets:
         st.error("Missing `GITHUB_TOKEN` in `.streamlit/secrets.toml`.")
@@ -122,9 +127,7 @@ def main():
     st.divider()
     render_traffic_charts(filtered_df)
     st.divider()
-
-    st.subheader("Daily Repository Audit Log")
-    st.dataframe(filtered_df, use_container_width=True, hide_index=True)
+    render_styled_audit_table(filtered_df)
 
 
 if __name__ == "__main__":
