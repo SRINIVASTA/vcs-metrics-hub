@@ -89,7 +89,7 @@ def render_sidebar_controls(df: pd.DataFrame, username: str) -> pd.DataFrame:
             temp_df = temp_df[temp_df["Est. Other Visitors"] > 0]
 
         st.divider()
-        st.caption("VCS Metrics Hub • Enterprise Telemetry")
+        st.caption("GitHub Portfolio Analytics • Telemetry")
 
     return temp_df.drop(columns=["Date_dt"]).reset_index(drop=True)
 
