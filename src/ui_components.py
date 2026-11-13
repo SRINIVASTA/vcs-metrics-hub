@@ -15,16 +15,25 @@ def render_kpi_header(df: pd.DataFrame) -> None:
 
 def render_traffic_charts(df: pd.DataFrame) -> None:
     """Renders interactive multi-repository Plotly trend charts."""
-    tab1, tab2 = st.tabs(["External Visitors Trend", "Git Clones Trend"])
+    has_external = df["Est. Other Visitors"].sum() > 0
+
+    if has_external:
+        tab1, tab2 = st.tabs(["External Visitors Trend", "Git Clones Trend"])
+        y_col = "Est. Other Visitors"
+        chart_title = "Daily Estimated External Visitors (Excludes Owner)"
+    else:
+        tab1, tab2 = st.tabs(["Internal Page Views Trend", "Git Clones Trend"])
+        y_col = "Total Views"
+        chart_title = "Daily Internal Page Views (Owner Activity)"
 
     with tab1:
         fig_visitors = px.line(
             df.sort_values("Date"),
             x="Date",
-            y="Est. Other Visitors",
+            y=y_col,
             color="Repository",
             markers=True,
-            title="Daily Estimated External Visitors (Excludes Owner)",
+            title=chart_title,
             template="plotly_dark",
         )
         fig_visitors.update_layout(hovermode="x unified", yaxis_rangemode="tozero")
@@ -100,8 +109,6 @@ def render_styled_audit_table(df: pd.DataFrame) -> None:
         if col in display_df.columns:
             display_df[col] = pd.to_numeric(display_df[col], errors="coerce").fillna(0).astype(int)
 
-    # Streamlit hard-caps styled dataframes at 10,000 total cells (rows * columns).
-    # Above 9,000 cells, render native unstyled dataframe to prevent "Error during cell creation".
     if display_df.size <= 9000:
         styled_df = (
             display_df.style
