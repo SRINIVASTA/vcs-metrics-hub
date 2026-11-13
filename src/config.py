@@ -1,0 +1,3 @@
+API_BASE_URL = "https://github.com"
+CACHE_TTL_SECONDS = 3600
+REQUEST_TIMEOUT = 15
