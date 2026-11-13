@@ -78,7 +78,11 @@ def render_sidebar_controls(df: pd.DataFrame, username: str) -> pd.DataFrame:
             placeholder="All repositories",
         )
 
-        only_external = st.toggle("Only External Visitors (> 0)", value=False)
+        only_external = st.toggle(
+            "Only External Visitors (> 0)",
+            value=False,
+            help="ON: Only External Visitors (> 0) | OFF: Only Active Internal Visits (> 0)",
+        )
 
         if isinstance(selected_range, tuple) and len(selected_range) == 2:
             start_d, end_d = selected_range
@@ -92,6 +96,11 @@ def render_sidebar_controls(df: pd.DataFrame, username: str) -> pd.DataFrame:
 
         if only_external:
             temp_df = temp_df[temp_df["Est. Other Visitors"] > 0]
+        else:
+            # Show only active repositories with internal (owner-only) views
+            temp_df = temp_df[
+                (temp_df["Total Views"] > 0) & (temp_df["Est. Other Visitors"] == 0)
+            ]
 
         st.divider()
         st.caption("GitHub Portfolio Analytics • Telemetry")
