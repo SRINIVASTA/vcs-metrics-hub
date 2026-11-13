@@ -61,10 +61,8 @@ flowchart TD
 ```text
 vcs-metrics-hub/
 ├── .streamlit/
-│   ├── config.toml               # Corporate GitHub Dark theme and headless server settings
-│   └── secrets.toml              # Local API credentials (GITHUB_TOKEN — ignored by Git)
-├── data/
-│   └── traffic_history.csv       # Persistent local CSV archive of daily repository telemetry
+│   └── config.toml               # Corporate GitHub Dark theme and headless server settings
+│   
 ├── src/
 │   ├── __init__.py               # Core telemetry package initializer
 │   ├── config.py                 # API endpoint URL, cache TTL, and timeout constants
