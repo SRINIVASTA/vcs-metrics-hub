@@ -1,10 +1,10 @@
-# VCS Metrics Hub
+# GitHub Portfolio Analytics
 
 A local web application (`http://localhost:8501`) for aggregating, filtering, and archiving cross-repository traffic and clone telemetry across your version control account using Streamlit, Pandas, Requests, and Plotly.
 
 ## About
 
-VCS Metrics Hub provides a lightweight, local-first telemetry pipeline for collecting 14-day page view and Git clone statistics across all owned repositories, isolating external human visitors from owner maintenance, and persisting historical CSV snapshots without external cloud dependencies.
+GitHub Portfolio Analytics provides a lightweight, local-first telemetry pipeline for collecting 14-day page view and Git clone statistics across all owned repositories, isolating external human visitors from owner maintenance, and persisting historical CSV snapshots without external cloud dependencies.
 
 Built and maintained by [T A Srinivas (@SRINIVASTA)](https://github.com), this repository hosts a Streamlit sidebar gateway, a paginated GitHub REST API client, a deduplicating analytics engine with local CSV storage, and interactive Plotly trend visualizations.
 
