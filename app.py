@@ -95,7 +95,7 @@ def render_sidebar_controls(df: pd.DataFrame, username: str) -> pd.DataFrame:
 
 
 def main():
-    st.title("📊 VCS Metrics Hub")
+    st.title("📊 GitHub Repository Traffic & Clone Analyzer ")
     st.caption("Cross-Repository Traffic & Clone Telemetry")
 
     if "GITHUB_TOKEN" not in st.secrets:
