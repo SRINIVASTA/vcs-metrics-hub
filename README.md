@@ -105,15 +105,8 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 3. Configure local API credentials
 
-Create a `.streamlit/secrets.toml` file inside the project root and add your Classic GitHub Personal Access Token (`repo` scope enabled):
-
-```toml
-GITHUB_TOKEN = "ghp_your_personal_access_token_here"
-```
-
-### 4. Launch the application
+### 3. Launch the application
 
 ```bash
 streamlit run app.py
