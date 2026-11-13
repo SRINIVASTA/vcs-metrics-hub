@@ -53,22 +53,49 @@ def _style_visibility(val: str) -> str:
 def _highlight_external(val: int) -> str:
     """Highlights days where outside visitors viewed the repository."""
     if val >= 5:
-        return "background-color: rgba(46, 160, 67, 0.45); color: #FFFFFF; font-weight: 700;"
+        return "background-color: rgba(46, 160, 67, 0.48); color: #FFFFFF; font-weight: 700;"
     if val > 0:
         return "background-color: rgba(46, 160, 67, 0.22); color: #7EE787; font-weight: 600;"
     return "color: #8B949E;"
 
 
+def _style_views(val: int) -> str:
+    """Applies blue intensity tiers without needing matplotlib."""
+    if val >= 100:
+        return "background-color: rgba(47, 129, 247, 0.45); color: #FFFFFF; font-weight: 700;"
+    if val >= 10:
+        return "background-color: rgba(47, 129, 247, 0.25); color: #79C0FF; font-weight: 600;"
+    if val > 0:
+        return "background-color: rgba(47, 129, 247, 0.10); color: #A5D6FF;"
+    return "color: #8B949E;"
+
+
+def _style_clones(val: int) -> str:
+    """Applies purple intensity tiers without needing matplotlib."""
+    if val >= 100:
+        return "background-color: rgba(163, 113, 247, 0.45); color: #FFFFFF; font-weight: 700;"
+    if val >= 10:
+        return "background-color: rgba(163, 113, 247, 0.25); color: #D2A8FF; font-weight: 600;"
+    if val > 0:
+        return "background-color: rgba(163, 113, 247, 0.10); color: #E2C5FF;"
+    return "color: #8B949E;"
+
+
 def render_styled_audit_table(df: pd.DataFrame) -> None:
-    """Renders a color-graded enterprise audit log table."""
+    """Renders a color-graded enterprise audit log table with weekday names."""
     st.subheader("Daily Repository Audit Log")
 
+    display_df = df.copy()
+    # Add Day of Week (e.g., Thursday, Friday) right after Date
+    day_names = pd.to_datetime(display_df["Date"]).dt.day_name()
+    display_df.insert(1, "Day", day_names)
+
     styled_df = (
-        df.style
+        display_df.style
         .map(_style_visibility, subset=["Visibility"])
         .map(_highlight_external, subset=["Est. Other Visitors"])
-        .background_gradient(subset=["Total Views"], cmap="Blues")
-        .background_gradient(subset=["Total Clones"], cmap="Purples")
+        .map(_style_views, subset=["Total Views"])
+        .map(_style_clones, subset=["Total Clones"])
         .format(
             {
                 "Total Views": "{:,}",
