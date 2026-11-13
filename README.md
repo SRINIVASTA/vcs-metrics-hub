@@ -124,7 +124,7 @@ This project is intended for personal repository analytics, portfolio monitoring
 
 If you clone, test, or build upon this repository, please consider giving it a **Star (⭐)** on GitHub—it helps others discover the project and supports continued development.
 
-* **Found a bug or have an idea?** Open an [Issue](https://github.com/vcs-metrics-hub/issues).
+* **Found a bug or have an idea?** Open an [Issue](https://github.com/issues).
 * **Want to improve the code?** Feel free to **Fork** this repository and submit a Pull Request.
 Use code with caution.
 Would you like me to paste the entire complete README.md from top to bottom with everything already in the exact right order so you can copy-paste the whole file at once?
