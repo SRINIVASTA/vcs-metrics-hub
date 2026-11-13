@@ -3,30 +3,6 @@ import pandas as pd
 import plotly.express as px
 
 
-def render_date_filter(df: pd.DataFrame) -> pd.DataFrame:
-    """Renders a custom start/end date picker across all available history."""
-    temp_df = df.copy()
-    temp_df["Date_dt"] = pd.to_datetime(temp_df["Date"]).dt.date
-    min_date, max_date = temp_df["Date_dt"].min(), temp_df["Date_dt"].max()
-
-    col1, col2 = st.columns([2, 1])
-    with col1:
-        selected_range = st.date_input(
-            "Select Date Range",
-            value=(min_date, max_date),
-            min_value=min_date,
-            max_value=max_date,
-        )
-    with col2:
-        st.caption(f"Available history: **{min_date}** to **{max_date}**")
-
-    if isinstance(selected_range, tuple) and len(selected_range) == 2:
-        start_d, end_d = selected_range
-        temp_df = temp_df[(temp_df["Date_dt"] >= start_d) & (temp_df["Date_dt"] <= end_d)]
-
-    return temp_df.drop(columns=["Date_dt"]).reset_index(drop=True)
-
-
 def render_kpi_header(df: pd.DataFrame) -> None:
     """Displays top-level executive summary metrics for the selected dates."""
     days_count = df["Date"].nunique() if not df.empty else 0
@@ -67,25 +43,41 @@ def render_traffic_charts(df: pd.DataFrame) -> None:
         st.plotly_chart(fig_clones, use_container_width=True)
 
 
-def render_data_table(df: pd.DataFrame) -> None:
-    """Renders a filterable audit log table with CSV export."""
+def _style_visibility(val: str) -> str:
+    """Colors Public and Private status cells cleanly."""
+    if val == "Public":
+        return "background-color: rgba(46, 160, 67, 0.25); color: #3FB950; font-weight: 600;"
+    return "background-color: rgba(210, 153, 34, 0.25); color: #D29922; font-weight: 600;"
+
+
+def _highlight_external(val: int) -> str:
+    """Highlights days where outside visitors viewed the repository."""
+    if val >= 5:
+        return "background-color: rgba(46, 160, 67, 0.45); color: #FFFFFF; font-weight: 700;"
+    if val > 0:
+        return "background-color: rgba(46, 160, 67, 0.22); color: #7EE787; font-weight: 600;"
+    return "color: #8B949E;"
+
+
+def render_styled_audit_table(df: pd.DataFrame) -> None:
+    """Renders a color-graded enterprise audit log table."""
     st.subheader("Daily Repository Audit Log")
-    col1, col2 = st.columns(2)
 
-    with col1:
-        selected_repos = st.multiselect(
-            "Filter Repositories",
-            options=sorted(df["Repository"].unique()),
-            default=[],
-            placeholder="All repositories",
+    styled_df = (
+        df.style
+        .map(_style_visibility, subset=["Visibility"])
+        .map(_highlight_external, subset=["Est. Other Visitors"])
+        .background_gradient(subset=["Total Views"], cmap="Blues")
+        .background_gradient(subset=["Total Clones"], cmap="Purples")
+        .format(
+            {
+                "Total Views": "{:,}",
+                "Unique Visitors": "{:,}",
+                "Est. Other Visitors": "{:,}",
+                "Total Clones": "{:,}",
+                "Unique Cloners": "{:,}",
+            }
         )
-    with col2:
-        only_external = st.checkbox("Only show days with external visitors (> 0)", value=False)
+    )
 
-    filtered = df.copy()
-    if selected_repos:
-        filtered = filtered[filtered["Repository"].isin(selected_repos)]
-    if only_external:
-        filtered = filtered[filtered["Est. Other Visitors"] > 0]
-
-    st.dataframe(filtered, use_container_width=True, hide_index=True)
+    st.dataframe(styled_df, use_container_width=True, hide_index=True)
