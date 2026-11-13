@@ -5,7 +5,7 @@ from src.github_client import GitHubTelemetryClient
 from src.analytics import build_telemetry_dataframe, save_and_merge_history
 from src.ui_components import render_kpi_header, render_traffic_charts
 
-st.set_page_config(page_title="VCS Metrics Hub", page_icon="📊", layout="wide")
+st.set_page_config(page_title="GitHub Repository Traffic & Clone Analyzer ", page_icon="📊", layout="wide")
 
 
 @st.cache_data(ttl=CACHE_TTL_SECONDS, show_spinner="Syncing repository telemetry...")
