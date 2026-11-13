@@ -86,7 +86,6 @@ def render_styled_audit_table(df: pd.DataFrame) -> None:
     st.subheader("Daily Repository Audit Log")
 
     display_df = df.copy()
-    # Add Day of Week (e.g., Thursday, Friday) right after Date
     day_names = pd.to_datetime(display_df["Date"]).dt.day_name()
     display_df.insert(1, "Day", day_names)
 
@@ -101,16 +100,29 @@ def render_styled_audit_table(df: pd.DataFrame) -> None:
         if col in display_df.columns:
             display_df[col] = pd.to_numeric(display_df[col], errors="coerce").fillna(0).astype(int)
 
-    # Allow Pandas Styler to render large multi-repository tables without dropping output
-    pd.set_option("styler.render.max_elements", max(500_000, display_df.size * 2))
-
-    styled_df = (
-        display_df.style
-        .map(_style_visibility, subset=["Visibility"])
-        .map(_highlight_external, subset=["Est. Other Visitors"])
-        .map(_style_views, subset=["Total Views"])
-        .map(_style_clones, subset=["Total Clones"])
-        .format({col: "{:,}" for col in num_cols if col in display_df.columns})
-    )
-
-    st.dataframe(styled_df, use_container_width=True, hide_index=True)
+    # Streamlit's browser grid throws "Error during cell creation" above ~1,000 styled rows.
+    # Apply rich cell styling for <= 800 rows; use fast native rendering for larger datasets.
+    if len(display_df) <= 800:
+        styled_df = (
+            display_df.style
+            .map(_style_visibility, subset=["Visibility"])
+            .map(_highlight_external, subset=["Est. Other Visitors"])
+            .map(_style_views, subset=["Total Views"])
+            .map(_style_clones, subset=["Total Clones"])
+            .format({col: "{:,}" for col in num_cols if col in display_df.columns})
+        )
+        st.dataframe(styled_df, use_container_width=True, hide_index=True)
+    else:
+        st.caption(
+            f"Showing {len(display_df):,} records (cell color highlights auto-enable when filtered to ≤ 800 rows)."
+        )
+        st.dataframe(
+            display_df,
+            use_container_width=True,
+            hide_index=True,
+            column_config={
+                col: st.column_config.NumberColumn(format="%d")
+                for col in num_cols
+                if col in display_df.columns
+            },
+        )
