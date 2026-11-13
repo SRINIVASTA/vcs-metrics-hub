@@ -100,9 +100,9 @@ def render_styled_audit_table(df: pd.DataFrame) -> None:
         if col in display_df.columns:
             display_df[col] = pd.to_numeric(display_df[col], errors="coerce").fillna(0).astype(int)
 
-    # Streamlit's browser grid throws "Error during cell creation" above ~1,000 styled rows.
-    # Apply rich cell styling for <= 800 rows; use fast native rendering for larger datasets.
-    if len(display_df) <= 800:
+    # Streamlit hard-caps styled dataframes at 10,000 total cells (rows * columns).
+    # Above 9,000 cells, render native unstyled dataframe to prevent "Error during cell creation".
+    if display_df.size <= 9000:
         styled_df = (
             display_df.style
             .map(_style_visibility, subset=["Visibility"])
@@ -114,7 +114,7 @@ def render_styled_audit_table(df: pd.DataFrame) -> None:
         st.dataframe(styled_df, use_container_width=True, hide_index=True)
     else:
         st.caption(
-            f"Showing {len(display_df):,} records (cell color highlights auto-enable when filtered to ≤ 800 rows)."
+            f"Showing all {len(display_df):,} records (cell color highlights auto-enable when filtered under 1,000 rows)."
         )
         st.dataframe(
             display_df,
