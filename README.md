@@ -8,6 +8,8 @@ GitHub Portfolio Analytics provides a lightweight, local-first telemetry pipelin
 
 Built and maintained by [T A Srinivas (@SRINIVASTA)](https://github.com), this repository hosts a Streamlit sidebar gateway, a paginated GitHub REST API client, a deduplicating analytics engine with local CSV storage, and interactive Plotly trend visualizations.
 
+<img src="assets/desktop.png" width="100%">
+
 ## Modules in this repo
 
 | Module | Description |
