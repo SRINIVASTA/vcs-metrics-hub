@@ -1,5 +1,8 @@
+import os
 import pandas as pd
 from typing import List, Dict, Any
+
+HISTORY_FILE = "data/traffic_history.csv"
 
 
 def build_telemetry_dataframe(raw_records: List[Dict[str, Any]]) -> pd.DataFrame:
@@ -42,3 +45,24 @@ def build_telemetry_dataframe(raw_records: List[Dict[str, Any]]) -> pd.DataFrame
     if not df.empty:
         df = df.sort_values(by=["Date", "Repository"], ascending=[False, True]).reset_index(drop=True)
     return df
+
+
+def save_and_merge_history(new_df: pd.DataFrame) -> pd.DataFrame:
+    """Appends fresh 14-day metrics to a persistent CSV so historical dates are never lost."""
+    os.makedirs("data", exist_ok=True)
+
+    if os.path.exists(HISTORY_FILE):
+        old_df = pd.read_csv(HISTORY_FILE)
+        if not new_df.empty:
+            combined = pd.concat([old_df, new_df], ignore_index=True)
+            combined = combined.drop_duplicates(subset=["Date", "Repository"], keep="last")
+        else:
+            combined = old_df
+    else:
+        combined = new_df.copy()
+
+    if not combined.empty:
+        combined = combined.sort_values(by=["Date", "Repository"], ascending=[False, True]).reset_index(drop=True)
+        combined.to_csv(HISTORY_FILE, index=False)
+
+    return combined
