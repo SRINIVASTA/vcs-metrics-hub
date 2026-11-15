@@ -27,6 +27,11 @@ def build_telemetry_dataframe(raw_records: List[Dict[str, Any]]) -> pd.DataFrame
         for date in all_dates:
             total_views, unique_visitors = views_map.get(date, (0, 0))
             total_clones, unique_cloners = clones_map.get(date, (0, 0))
+
+            # Skip days with zero views and zero clones
+            if total_views == 0 and total_clones == 0:
+                continue
+
             est_external_visitors = max(0, unique_visitors - 1)
 
             rows.append(
