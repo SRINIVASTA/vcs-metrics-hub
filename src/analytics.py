@@ -68,6 +68,9 @@ def save_and_merge_history(new_df: pd.DataFrame) -> pd.DataFrame:
     if os.path.exists(HISTORY_FILE):
         old_df = pd.read_csv(HISTORY_FILE)
         old_df = old_df[old_df["Date"] < today_utc]
+        # Clean up any legacy all-zero rows already stored in the CSV
+        old_df = old_df[(old_df["Total Views"] > 0) | (old_df["Total Clones"] > 0)]
+
         if not completed_new_df.empty:
             archived_df = pd.concat([old_df, completed_new_df], ignore_index=True)
             archived_df = archived_df.drop_duplicates(subset=["Date", "Repository"], keep="last")
